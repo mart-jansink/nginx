@@ -39,6 +39,7 @@ struct ngx_http_upstream_rr_peer_s {
     ngx_msec_t                      start_time;
 
     ngx_uint_t                      down;
+    ngx_uint_t                      backup;
 
 #if (NGX_HTTP_SSL || NGX_COMPAT)
     void                           *ssl_session;

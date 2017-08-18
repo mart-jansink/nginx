@@ -98,9 +98,9 @@ typedef struct {
     ngx_uint_t                       max_fails;
     time_t                           fail_timeout;
     ngx_msec_t                       slow_start;
+    ngx_uint_t                       backup;
 
     unsigned                         down:1;
-    unsigned                         backup:1;
 
     NGX_COMPAT_BEGIN(6)
     NGX_COMPAT_END

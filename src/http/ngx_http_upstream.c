@@ -5686,7 +5686,7 @@ ngx_http_upstream_server(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     time_t                       fail_timeout;
     ngx_str_t                   *value, s;
     ngx_url_t                    u;
-    ngx_int_t                    weight, max_conns, max_fails;
+    ngx_int_t                    weight, max_conns, max_fails, backup;
     ngx_uint_t                   i;
     ngx_http_upstream_server_t  *us;
 
@@ -5703,6 +5703,7 @@ ngx_http_upstream_server(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     max_conns = 0;
     max_fails = 1;
     fail_timeout = 10;
+    backup = 0;
 
     for (i = 2; i < cf->args->nelts; i++) {
 
@@ -5769,13 +5770,28 @@ ngx_http_upstream_server(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
             continue;
         }
 
+        if (ngx_strncmp(value[i].data, "backup=", 7) == 0) {
+
+            if (!(uscf->flags & NGX_HTTP_UPSTREAM_BACKUP)) {
+                goto not_supported;
+            }
+
+            backup = ngx_atoi(&value[i].data[7], value[i].len - 7);
+
+            if (backup == NGX_ERROR) {
+                goto invalid;
+            }
+
+            continue;
+        }
+
         if (ngx_strcmp(value[i].data, "backup") == 0) {
 
             if (!(uscf->flags & NGX_HTTP_UPSTREAM_BACKUP)) {
                 goto not_supported;
             }
 
-            us->backup = 1;
+            backup = 1;
 
             continue;
         }
@@ -5815,6 +5831,7 @@ ngx_http_upstream_server(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     us->max_conns = max_conns;
     us->max_fails = max_fails;
     us->fail_timeout = fail_timeout;
+    us->backup = backup;
 
     return NGX_CONF_OK;
 
